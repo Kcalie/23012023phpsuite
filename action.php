@@ -168,34 +168,47 @@ switch($_GET['e'])
             // verifier si tous les chaps sont rempli
             if(!empty($_POST['nom']) && !empty($_POST['prenom']) && !empty($_POST['email']) && !empty($_POST['sujet']) && !empty($_POST['message']))
             {
-                // pour faire la connexion a la base de données 
-                $contact = $db->prepare('INSERT INTO `table_contact` SET
-                                                    Contact_Prenom = :prenom,
-                                                    Contact_Nom = :nom,
-                                                    Contact_Email = :email,
-                                                    Contact_Sujet = :sujet,
-                                                    Contact_Message = :message,
-                                                    Contact_Date = CURDATE()
-                                    '); 
-                                    // attribut les valeurs postées par le formulaire dans les champs de la base
-                                    $contact->bindValue(':nom',$_POST['nom'],PDO::PARAM_STR);
-                                    $contact->bindValue(':prenom',$_POST['prenom'],PDO::PARAM_STR);
-                                    $contact->bindValue(':email',$_POST['email'],PDO::PARAM_STR);
-                                    $contact->bindValue(':sujet',$_POST['sujet'],PDO::PARAM_STR);
-                                    $contact->bindValue(':message',$_POST['message'],PDO::PARAM_STR);
-                                    // lancer l'envoir vers la base 
-                                    $contact->execute();
+                if($_POST['captcha'] == $_SESSION['captchat'])
+                {
+            
+                $captcha2 = unserialize($_SESSION['captcha2']);
+                if(in_array($_POST['captcha2'],$captcha2))
+                {
+                        // pour faire la connexion a la base de données 
+                        $contact = $db->prepare('INSERT INTO `table_contact` SET
+                        Contact_Prenom = :prenom,
+                        Contact_Nom = :nom,
+                        Contact_Email = :email,
+                        Contact_Sujet = :sujet,
+                        Contact_Message = :message,
+                        Contact_Date = CURDATE()
+                        '); 
 
-            $message = 'formulaire envoyé !!';
-                                    
+                    // attribut les valeurs postées par le formulaire dans les champs de la base
+                    $contact->bindValue(':nom',$_POST['nom'],PDO::PARAM_STR);
+                    $contact->bindValue(':prenom',$_POST['prenom'],PDO::PARAM_STR);
+                    $contact->bindValue(':email',$_POST['email'],PDO::PARAM_STR);
+                    $contact->bindValue(':sujet',$_POST['sujet'],PDO::PARAM_STR);
+                    $contact->bindValue(':message',$_POST['message'],PDO::PARAM_STR);
+                    // lancer l'envoir vers la base 
+                    $contact->execute();
+                    $message = 'formulaire envoyé !!';
+                }
+                else
+                {
+                    $message = "Tu n'as aucune culture général";
+                }
+                } 
+                else
+                {
+                    $message = 'erreur de captcha';
+                }                    
             }
-            else
-            {
-                $message = 'veuillez remplir les champs !!';
-            }
+
             // pour afficher les message dans l'url
             header('location:contact.php?message='.urlencode($message));
         }
         break;
 }
 ?>
+faire un token pour toutes les pages de connexion

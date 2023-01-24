@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once('core/function.php');
 ?>
 
@@ -9,7 +10,7 @@ require_once('core/function.php');
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
-<body>
+<body style="background:grey;"><!--CSS-->
     <?php include('inc/header.php') ?>
     <h1>Nous Contacter</h1>
     <form name="contact" method="POST" action="action.php?e=contact">
@@ -28,6 +29,11 @@ require_once('core/function.php');
     <label for="message">Message :</label>
     <textarea name="message"></textarea>
     <br>
+    <label for="captcha">calculer <?php echo captcha1();?> :</label>
+    <input type="text" name="captcha" />
+    <br>
+    <label for="captcha2">repondre <?php echo captcha2();?> :</label>
+    <input type="text" name="captcha2" />
     <button type="submit" name="submit">Envoyer</button>
     </form>
     <?php include('inc/footer.php') ?>
