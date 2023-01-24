@@ -2,11 +2,11 @@
 session_start();
 require('core/function.php');
 $db = pdo_connect();
-if(!verifUser())
-{
-    header('location:prive.php');
-    exit;
-}
+// if(verifUser())
+// {
+//     header('location:prive.php');
+//     exit;
+// }
 ?>
 <!DOCTYPE html>
 <html lang="en">

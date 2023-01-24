@@ -5,7 +5,7 @@ $db = pdo_connect();
 if(!verifUser())
 {
     $message = 'veuillez vous reconnecter';
-    header('location:membres.php?message='.urlencode($message));// si n'est pas connecter et diriger vers memebres.php
+    header('location:membres.php?message='.urlencode($message));// si n'est pas connecter et diriger vers membres.php
     exit;
 }
 $verif_user = $db->prepare('SELECT * FROM `Table_user` WHERE User_ID = :user AND User_Password = :pass LIMIT 1');
@@ -33,25 +33,26 @@ if($verif_user->rowCount() == 1)
 
     <?php 
     // on recup l'ensemble des fichiers
-    $liste_fichiers = scandir('upload/'.$user->$User_ID);
-    if($liste_fichiers)
+    $req_fichier = $db->prepare('SELECT * FROM `table_file` WHERE File_User_ID = :id_user ORDER BY File_Date_Add ASC');
+    $req_fichier->bindParam(':id_user',$user->User_ID,PDO::PARAM_INT); 
+    $req_fichier->execute();
+    $nb_fichier = $req_fichier->rowCount();
+    // on verifie si il y a bien des fichiers liées a l'user
+    if($nb_fichier >= 1)
     {
         echo '<ul>';
-        $i=0;
-        foreach($liste_fichiers as $fichier)
+        $fichiers = $req_fichier->fetchAll();// recup tous les fichier de l'user
+        foreach($fichiers as $fichier)
         {
-            if($i>1)
-            {
-                echo '<li><a href="upload/'.$user->User_ID.'/'.$fichier.'" target="_blank">'.$fichier.'</a><a href="action.php?e=deletefichier&fichier='.$fichier.'"><img src="assets/images/corbeille.png"><a/></li>';
-            }
-            $i++;
+            echo '<li><a href="action.php?e=download&id='.$fichier['File_ID'].'">'.$fichier['File_Original_Name'].'</a></li>';
         }
-        echo '<ul>';
+        echo '</ul>';
     }
-    ?><!--This PHP code uses the scandir function to get an array of all files in a directory called 'upload' and then the user's login name.It then checks if the list of files is not empty, if so, it creates an unordered list and loops through each file in the list.
-    It starts at index 2, because the first two elements of the array returned by scandir are "." and ".." which are not actual files.
-    For each file, it creates a list item with a link to the file and a link to delete the file. The link to the file is set to open in a new tab and target="_blank" and the delete link is calling the action.php file and passing the parameters e=deletefichier and fichier which presumably this script uses to delete the file.
-    It is important to note that the code does not check for the authenticity of the user and therefore could be vulnerable to malicious users manipulating the cookies or the directory path. It is also important to validate the user's permission to access the files and validate the file type before displaying it.-->
+    else
+    {
+        echo "vous n'avez aucun fichier";
+    }
+    ?>
 
     <form method="post" action="action.php?e=upload" enctype="multipart/form-data">
         <label for="fichier">ajouter un fichier</label>

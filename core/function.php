@@ -18,13 +18,13 @@ function verifUser()
     global $_COOKIE;
     if($_COOKIE['id_user'] && $_COOKIE['pass_user'])
     {
-        $verif_user = $db->prepare('SELECT User_ID FROM `Table_user` WHERE User_ID = :user AND User_Password = :pass LIMIT 1');
+        $verif_user = $db->prepare('SELECT * FROM `table_user` WHERE User_ID = :user AND User_Password = :pass LIMIT 1');
         $verif_user->bindParam(':user',$_COOKIE['id_user'],PDO::PARAM_STR);
         $verif_user->bindParam(':pass',$_COOKIE['pass_user'],PDO::PARAM_STR);
         $verif_user->execute();
         if($verif_user->rowCount() == 1)
         {
-            return true;
+            return $verif_user->fetch(PDO::FETCH_OBJ);
         }
         else
         {
@@ -53,6 +53,7 @@ function afficheMenu($emplacement='header')
     {
         $menu_header = array(
             'index.php' => 'Accueil',
+            'inscription.php' => 'Inscription',
             'membres.php' => 'Espaces membres',
             'contact.php' => 'Nous Contacter'
         );
@@ -143,6 +144,8 @@ function uploadFichiers()
 {
     global $extensions;
     global $_FILES;
+    global $db;
+    global $user;
     $message = array();
     //on fait une boucle pour parcourir les fichiers
     for($i=0;$i<count($_FILES['fichier']['name']);$i++)
@@ -152,9 +155,23 @@ function uploadFichiers()
         if(in_array($verif_extension,$extensions))
         {
             $nom_fichier = renomme_image($_FILES['fichier']['name'][$i]);
-            if(move_uploaded_file($_FILES['fichier']['tmp_name'][$i],'upload/'.$_COOKIE['login'].'/'.$nom_fichier))
+            if(move_uploaded_file($_FILES['fichier']['tmp_name'][$i],'upload/'.$user->User_ID.'/'.$nom_fichier))
             {
+                // message de succes
                 $message[$i] = 'Fichier'.$_FILES['fichier']['name'][$i].' envoyé';
+                // on insere le fichier dans la bdd
+                $file = $db->prepare('INSERT INTO `table_file` SET 
+                                        File_User_ID = :user_id,
+                                        File_Name = :nom_fichier,
+                                        File_Original_Name = :original_name,
+                                        File_Date_Add = CURDATE(),
+                                        File_Download = 0,
+                                        File_Date_Download = CURDATE()
+                                    ');
+            $file->bindValue(':user_id',$user->User_ID,PDO::PARAM_INT);
+            $file->bindValue(':nom_fichier',$nom_fichier,PDO::PARAM_STR);
+            $file->bindValue(':original_name',$_FILES['fichier']['name'][$i],PDO::PARAM_STR);
+            $file->execute();
             }
             else
             {

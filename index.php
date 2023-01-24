@@ -17,7 +17,7 @@ require('core/function.php');
     <?php
         include('inc/header.php');// This is a PHP script that includes a file called "header.php" from the "inc" directory. The include() function includes the specified file, allowing its contents to be used in the current script. The file "header.php" is in the "inc" directory
     ?>
-    <a href="inscription.php">Inscription</a>
+    
     </header>
     <h1>Page d'accueil</h1>
     <p>bienvenue sur mon site PHP avec des includes</p>
